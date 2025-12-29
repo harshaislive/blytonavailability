@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: Hospitality Availability API
+  description: API to fetch room availability from the booking engine.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/availability:
+    get:
+      summary: Get room availability
+      description: Scrapes the live booking site or returns cached availability data.
+      parameters:
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [calendar, check]
+            default: calendar
+          description: 'Scraping mode: "calendar" for 2-month bulk view (slower), "check" for fast single-date status.'
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+            example: '2025-12-31'
+          description: Start date for the availability search (YYYY-MM-DD). Defaults to Today.
+        - in: query
+          name: months
+          schema:
+            type: integer
+            default: 2
+          description: Number of months to scrape per request.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: Number of months to skip from the start date.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  source:
+                    type: string
+                    example: live
+                    enum: [live, cache]
+                  timestamp:
+                    type: integer
+                    format: int64
+                  params:
+                    type: object
+                    properties:
+                      months:
+                         type: integer
+                      offset:
+                         type: integer
+                      startDate:
+                         type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        room:
+                          type: string
+                        availability:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              date:
+                                type: string
+                              price:
+                                type: string
+                              available:
+                                type: boolean
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: string
