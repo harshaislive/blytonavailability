@@ -4,7 +4,9 @@ info:
   description: API to fetch room availability from the booking engine.
   version: 1.0.0
 servers:
+  - url: /
   - url: http://localhost:3000
+    description: Local Development
 paths:
   /api/availability:
     get:
